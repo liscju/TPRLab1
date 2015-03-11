@@ -1,1 +1,1 @@
-mpiexec -n 2 python src/pingpong.py
+mpiexec -n 2 python src/pingpong.py $*
