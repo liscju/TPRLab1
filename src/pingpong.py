@@ -59,7 +59,7 @@ def send_process(comm,buff_size):
         lambda: send_iterate(comm,buff_size)
     )
     avg_delay_time = invoke_time/(2*SEND_RECV_ITERATIONS)
-    avg_bandwith = (buff_size*SEND_RECV_ITERATIONS*8)/(1024*1024)
+    avg_bandwith = (buff_size*SEND_RECV_ITERATIONS*8)/(1024*1024*invoke_time)
     AVG_DELAY_TIMES.append(avg_delay_time)
     AVG_BANDWIDTH.append(avg_bandwith)
 
