@@ -21,10 +21,10 @@ void initMPI(int * world_size, int * world_rank)
     MPI_Barrier(MPI_COMM_WORLD);
 }
 
-/*double calculateTimeDifference(struct timespec * tend, struct timespec *tstart)
+double calculateTimeDifference(struct timespec * tend, struct timespec *tstart)
 {
     return ((double)tend->tv_sec + 1.0e-9*tend->tv_nsec) - ((double)tstart->tv_sec + 1.0e-9*tstart->tv_nsec);
-}*/
+}
 
 void checkAndLaunchProcesses(int * world_size, int * world_rank, char * argv[])
 {
@@ -43,12 +43,16 @@ void checkAndLaunchProcesses(int * world_size, int * world_rank, char * argv[])
 }
 void calculatingProcess()
 {
-    /*
+    
     struct timespec beginTime;
     struct timespec endTime;
-    double timeDifference;
-    double timeDifference
-    */
+    double timeDifference = 0.0;
+
+    double averageBandwidth = 0;
+    double bandwidth;
+    double totalBandwidth;
+    double averageTime = 0;
+    double totalTime = 0;
     int sizeOfDataIncrement = 0;
     int numberOfIterations = 0;
     int * arrayToSend = (int*)malloc(1*sizeof(int));
@@ -58,31 +62,48 @@ void calculatingProcess()
     {
         for(sizeOfDataIncrement = 0; sizeOfDataIncrement<=maxSizeOfDataIteration; sizeOfDataIncrement++)
         {
+            totalBandwidth = 0.0;
             bufferSize = (sizeOfData[sizeOfDataIncrement])*sizeof(int);
             arrayToSend = (int*)(realloc(arrayToSend, bufferSize));
             arrayFromSecondProcess = (int*)(realloc(arrayFromSecondProcess, bufferSize));
-            //clock_gettime(CLOCK_MONOTONIC, &beginTime);
             for(numberOfIterations = 0; numberOfIterations < maxNumberOfIterations; numberOfIterations++)
             {
+                clock_gettime(CLOCK_MONOTONIC, &beginTime);
                 MPI_Send(arrayToSend, sizeOfData[sizeOfDataIncrement], MPI_INT, 1, 0, MPI_COMM_WORLD);
                 MPI_Recv(arrayFromSecondProcess, sizeOfData[sizeOfDataIncrement], MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        		clock_gettime(CLOCK_MONOTONIC, &endTime);
+        		timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
+                bandwidth = ((double)sizeOfData[sizeOfDataIncrement] * 2) / timeDifference;
+        		totalBandwidth = totalBandwidth + bandwidth;
+        		totalTime = totalTime + timeDifference;
             }
-            /*clock_gettime(CLOCK_MONOTONIC, &endTime);
-            timeDifference = calculateTimeDifference(&endTime, &beginTime);
-            averageBandwidth = (sizeOfData[sizeOfDataIncrement]*numberOfIterations*8)/(1024*1024*timeDifference);
-            printf("Standard send time for %i array is: %x miliseconds\n", sizeOfData[sizeOfDataIncrement], timeDifference);
-            printf("Average bandwidth for %i array is: %i Mbits/sec\n", sizeOfData[sizeOfDataIncrement], averageBandwidth);
-            clock_gettime(CLOCK_MONOTONIC, &beginTime);*/
+    	    averageTime = totalTime/(double)maxNumberOfIterations;
+    	    averageBandwidth = (totalBandwidth*8/(1024*1024))/(double)maxNumberOfIterations;
+            printf("Standard send time %i: %f miliseconds\n", sizeOfData[sizeOfDataIncrement], averageTime);
+    	    printf("Standard Average bandwidth %i: %f Mbits/sec\n", sizeOfData[sizeOfDataIncrement], averageBandwidth);
+    	    totalBandwidth = 0;
+            bandwidth = 0;
+            averageBandwidth = 0;
+	        averageTime = 0;
+            totalTime = 0;
             for(numberOfIterations = 0; numberOfIterations < maxNumberOfIterations; numberOfIterations++)
             {
+                clock_gettime(CLOCK_MONOTONIC, &beginTime);
                 MPI_Ssend(arrayToSend, sizeOfData[sizeOfDataIncrement], MPI_INT, 1, 0, MPI_COMM_WORLD);
                 MPI_Recv(arrayFromSecondProcess, sizeOfData[sizeOfDataIncrement], MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                clock_gettime(CLOCK_MONOTONIC, &endTime);
+		        timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
+                bandwidth = ((double)sizeOfData[sizeOfDataIncrement] * 2) / timeDifference;
+        		totalBandwidth = totalBandwidth + bandwidth;
+        		totalTime = totalTime + timeDifference;
             }
-            /*clock_gettime(CLOCK_MONOTONIC, &endTime);
-            timeDifference = calculateTimeDifference(&endTime, &beginTime);
-            averageBandwidth = (sizeOfData[sizeOfDataIncrement]*numberOfIterations*8)/(1024*1024*timeDifference);
-            printf("Synchronized send time for %i array is: %x miliseconds\n", sizeOfData[sizeOfDataIncrement], timeDifference);
-            printf("Synchronized Average bandwidth for %i array is: %i Mbits/sec\n", sizeOfData[sizeOfDataIncrement], averageBandwidth);*/
+	        averageTime = totalTime/(double)maxNumberOfIterations;
+            clock_gettime(CLOCK_MONOTONIC, &endTime);
+            timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
+	        averageBandwidth = 0;
+            averageBandwidth = (totalBandwidth*8/(1024*1024))/(double)maxNumberOfIterations;
+            printf("Synchronized send time %i array: %f miliseconds\n", sizeOfData[sizeOfDataIncrement], averageTime);
+            printf("Synchronized Average bandwidth %i: %f Mbits/sec\n", sizeOfData[sizeOfDataIncrement], averageBandwidth);
         }
         free(arrayToSend);
         free(arrayFromSecondProcess);
@@ -112,7 +133,7 @@ void normalProcess()
             {
                 MPI_Recv(arrayReceivedSynch, sizeOfData[sizeOfDataIncrement], MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 MPI_Ssend(arrayReceivedSynch, sizeOfData[sizeOfDataIncrement], MPI_INT, 0, 0, MPI_COMM_WORLD);
-            }
+            };
         }
         free(arrayReceivedStd);
         free(arrayReceivedSynch);

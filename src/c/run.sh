@@ -1,4 +1,3 @@
-mpicc \-o cmpi.out main.c -lrt
-mpiexec -n 2
-
-jak cos to wpierdzielic -Wl,--as-needed  przed -lrt
+mpicc -o main.out main.c -lrt
+lamboot
+mpiexec -n 2 ./main.out
