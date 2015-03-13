@@ -28,8 +28,28 @@ def read_command_line_arguments():
     else:
         usage()
     
-    return comm_type    
+    return comm_type
 
+
+def save_delay_times(comm_type):
+    f = open('delay'+comm_type+'.txt','w+')
+    f.write("# X Y\n")
+    for i in range(0,len(BUFFER_SIZES)):
+        f.write(str(BUFFER_SIZES[i]) + " " + str(AVG_DELAY_TIMES[i]) + "\n")
+    f.close()
+
+
+def save_bandwidth(comm_type):
+    f = open('bandwidth'+comm_type+'.txt','w+')
+    f.write("# X Y\n")
+    for i in range(0,len(BUFFER_SIZES)):
+        f.write(str(BUFFER_SIZES[i]) + " " + str(AVG_BANDWIDTH[i]) + "\n")
+    f.close()
+
+
+def save_results(comm_type):
+    save_delay_times(comm_type)
+    save_bandwidth(comm_type)
 
 
 def initialize_communication(comm_type):
@@ -42,11 +62,14 @@ def initialize_communication(comm_type):
 
     if comm.rank == 0:
         for buff_size in BUFFER_SIZES:
-            send_process(comm,buff_size)
+            send_process(comm,buff_size,comm_type)
     else:
         assert comm.rank == 1
         for buff_size in BUFFER_SIZES:
-            recv_process(comm,buff_size)
+            recv_process(comm,buff_size,comm_type)
+
+    if comm.rank == 0:
+        save_results(comm_type)
 
 def invoke_and_calculate_time(fun):
     start_time = MPI.Wtime()
@@ -54,31 +77,34 @@ def invoke_and_calculate_time(fun):
     end_time = MPI.Wtime()
     return end_time - start_time
 
-def send_process(comm,buff_size):
+def send_process(comm,buff_size,comm_type):
     invoke_time = invoke_and_calculate_time(
-        lambda: send_iterate(comm,buff_size)
+        lambda: send_iterate(comm,buff_size,comm_type)
     )
     avg_delay_time = invoke_time/(2*SEND_RECV_ITERATIONS)
     avg_bandwith = (buff_size*SEND_RECV_ITERATIONS*8)/(1024*1024*invoke_time)
     AVG_DELAY_TIMES.append(avg_delay_time)
     AVG_BANDWIDTH.append(avg_bandwith)
 
-    print "BUFFSIZE=" + str(buff_size)
-    print "AVG_DELAY_TIME "+str(avg_delay_time)
-    print "AVG_BANDWIDTH "+str(avg_bandwith)
-    print "--------------------------------"
-
-def send_iterate(comm, buff_size):
+def send_iterate(comm, buff_size,comm_type):
     for i in range(0, SEND_RECV_ITERATIONS):
         data = bytearray(buff_size)
-        comm.send(data,dest=1)
+        if comm_type == "sync":
+            comm.send(data,dest=1)
+        else:
+            assert comm_type == "asyn"
+            comm.ssend(data,dest=1)
         comm.recv(source=1)
 
-def recv_process(comm, buff_size):
+def recv_process(comm, buff_size,comm_type):
     for i in range(0,SEND_RECV_ITERATIONS):
         data = comm.recv(source=0)
         reply = bytearray(buff_size)
-        comm.send(reply, dest=0)
+        if comm_type == "sync":
+            comm.send(reply,dest=0)
+        else:
+            assert comm_type == "asyn"
+            comm.ssend(reply,dest=0)
 
 def main():
     comm_type = read_command_line_arguments()
