@@ -32,7 +32,7 @@ def read_command_line_arguments():
 
 
 def save_delay_times(comm_type):
-    f = open('delay'+comm_type+'.txt','w+')
+    f = open('p_delay'+comm_type+'.txt','w+')
     f.write("# X Y\n")
     for i in range(0,len(BUFFER_SIZES)):
         f.write(str(BUFFER_SIZES[i]) + " " + str(AVG_DELAY_TIMES[i]) + "\n")
@@ -40,7 +40,7 @@ def save_delay_times(comm_type):
 
 
 def save_bandwidth(comm_type):
-    f = open('bandwidth'+comm_type+'.txt','w+')
+    f = open('p_bandwidth'+comm_type+'.txt','w+')
     f.write("# X Y\n")
     for i in range(0,len(BUFFER_SIZES)):
         f.write(str(BUFFER_SIZES[i]) + " " + str(AVG_BANDWIDTH[i]) + "\n")

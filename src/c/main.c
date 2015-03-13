@@ -43,7 +43,7 @@ void checkAndLaunchProcesses(int * world_size, int * world_rank, char * argv[])
 }
 void calculatingProcess()
 {
-    
+
     struct timespec beginTime;
     struct timespec endTime;
     double timeDifference = 0.0;
@@ -60,6 +60,17 @@ void calculatingProcess()
     size_t bufferSize = 0;
     if(arrayToSend!=NULL || arrayFromSecondProcess!=NULL)
     {
+        FILE * resultsFile = fopen("results.txt", "w");
+		FILE * delayAsyncFile = fopen("c_delayAsyn.txt", "w");
+		fprintf(delayAsyncFile, "# X Y\n");
+		FILE * delaySyncFile = fopen("c_delaySync.txt", "w");
+		fprintf(delaySyncFile, "# X Y\n");
+		FILE * bandwidthAsyncFile = fopen("c_bandwidthAsyn.txt", "w");
+		fprintf(bandwidthAsyncFile, "# X Y\n");
+		FILE * bandwidthSyncFile = fopen("c_bandwidthSync.txt", "w");
+		fprintf(bandwidthSyncFile, "# X Y\n");
+		
+		// TODO ogarnac jak to jest w pythonie i zrobic analogicznie z zapisem wynikow do plikow
         for(sizeOfDataIncrement = 0; sizeOfDataIncrement<=maxSizeOfDataIteration; sizeOfDataIncrement++)
         {
             totalBandwidth = 0.0;
@@ -79,8 +90,9 @@ void calculatingProcess()
             }
     	    averageTime = totalTime/(double)maxNumberOfIterations;
     	    averageBandwidth = (totalBandwidth*8/(1024*1024))/(double)maxNumberOfIterations;
-            printf("Standard send time %i: %f miliseconds\n", sizeOfData[sizeOfDataIncrement], averageTime);
-    	    printf("Standard Average bandwidth %i: %f Mbits/sec\n", sizeOfData[sizeOfDataIncrement], averageBandwidth);
+            fprintf(resultsFile, "STD Size: %i\n", sizeOfData[sizeOfDataIncrement]);
+            fprintf(resultsFile, "STD Time: %f sec\n", averageTime);
+            fprintf(resultsFile, "STD Avg bw: %f Mbits/sec\n", averageBandwidth);
     	    totalBandwidth = 0;
             bandwidth = 0;
             averageBandwidth = 0;
@@ -102,9 +114,15 @@ void calculatingProcess()
             timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
 	        averageBandwidth = 0;
             averageBandwidth = (totalBandwidth*8/(1024*1024))/(double)maxNumberOfIterations;
-            printf("Synchronized send time %i array: %f miliseconds\n", sizeOfData[sizeOfDataIncrement], averageTime);
-            printf("Synchronized Average bandwidth %i: %f Mbits/sec\n", sizeOfData[sizeOfDataIncrement], averageBandwidth);
+            fprintf(resultsFile, "SYN Size: %i\n", sizeOfData[sizeOfDataIncrement]);
+            fprintf(resultsFile, "SYN Time: %f sec\n", averageTime);
+            fprintf(resultsFile, "SYN Avg bw: %f Mbits/sec\n", averageBandwidth);
         }
+        fclose(resultsFile);
+		fclose(delayAsyncFile);
+		fclose(delaySyncFile);
+		fclose(bandwidthAsyncFile);
+		fclose(bandwidthSyncFile);
         free(arrayToSend);
         free(arrayFromSecondProcess);
     }
