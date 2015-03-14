@@ -55,8 +55,8 @@ void calculatingProcess()
     double totalTime = 0;
     int sizeOfDataIncrement = 0;
     int numberOfIterations = 0;
-    int * arrayToSend = (int*)malloc(1*sizeof(int));
-    int * arrayFromSecondProcess = (int*)malloc(1*sizeof(int));
+    char * arrayToSend = (char*)malloc(1*sizeof(char));
+    char * arrayFromSecondProcess = (char*)malloc(1*sizeof(char));
     size_t bufferSize = 0;
     if(arrayToSend!=NULL || arrayFromSecondProcess!=NULL)
     {
@@ -72,14 +72,14 @@ void calculatingProcess()
         for(sizeOfDataIncrement = 0; sizeOfDataIncrement<=maxSizeOfDataIteration; sizeOfDataIncrement++)
         {
             totalBandwidth = 0.0;
-            bufferSize = (sizeOfData[sizeOfDataIncrement])*sizeof(int);
-            arrayToSend = (int*)(realloc(arrayToSend, bufferSize));
-            arrayFromSecondProcess = (int*)(realloc(arrayFromSecondProcess, bufferSize));
+            bufferSize = (sizeOfData[sizeOfDataIncrement])*sizeof(char);
+            arrayToSend = (char*)(realloc(arrayToSend, bufferSize));
+            arrayFromSecondProcess = (char*)(realloc(arrayFromSecondProcess, bufferSize));
             for(numberOfIterations = 0; numberOfIterations < maxNumberOfIterations; numberOfIterations++)
             {
                 clock_gettime(CLOCK_MONOTONIC, &beginTime);
-                MPI_Send(arrayToSend, sizeOfData[sizeOfDataIncrement], MPI_INT, 1, 0, MPI_COMM_WORLD);
-                MPI_Recv(arrayFromSecondProcess, sizeOfData[sizeOfDataIncrement], MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                MPI_Send(arrayToSend, sizeOfData[sizeOfDataIncrement], MPI_CHAR, 1, 0, MPI_COMM_WORLD);
+                MPI_Recv(arrayFromSecondProcess, sizeOfData[sizeOfDataIncrement], MPI_CHAR, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         		clock_gettime(CLOCK_MONOTONIC, &endTime);
         		timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
                 bandwidth = ((double)sizeOfData[sizeOfDataIncrement] * 2) / timeDifference;
@@ -98,8 +98,8 @@ void calculatingProcess()
             for(numberOfIterations = 0; numberOfIterations < maxNumberOfIterations; numberOfIterations++)
             {
                 clock_gettime(CLOCK_MONOTONIC, &beginTime);
-                MPI_Ssend(arrayToSend, sizeOfData[sizeOfDataIncrement], MPI_INT, 1, 0, MPI_COMM_WORLD);
-                MPI_Recv(arrayFromSecondProcess, sizeOfData[sizeOfDataIncrement], MPI_INT, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                MPI_Ssend(arrayToSend, sizeOfData[sizeOfDataIncrement], MPI_CHAR, 1, 0, MPI_COMM_WORLD);
+                MPI_Recv(arrayFromSecondProcess, sizeOfData[sizeOfDataIncrement], MPI_CHAR, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 clock_gettime(CLOCK_MONOTONIC, &endTime);
 		        timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
                 bandwidth = ((double)sizeOfData[sizeOfDataIncrement] * 2) / timeDifference;
@@ -127,25 +127,25 @@ void normalProcess()
 {
     int sizeOfDataIncrement = 0;
     int numberOfIterations = 0;
-    int * arrayReceivedStd = (int*)malloc(1*sizeof(int));
-    int * arrayReceivedSynch = (int*)malloc(1*sizeof(int));
+    char * arrayReceivedStd = (char*)malloc(1*sizeof(char));
+    char * arrayReceivedSynch = (char*)malloc(1*sizeof(char));
     size_t bufferSize = 0;
     if(arrayReceivedStd!=NULL || arrayReceivedSynch!=NULL)
     {
         for(sizeOfDataIncrement = 0; sizeOfDataIncrement<=maxSizeOfDataIteration; sizeOfDataIncrement++)
         {
-            bufferSize = (sizeOfData[sizeOfDataIncrement])*sizeof(int);
-            arrayReceivedStd = (int*)realloc(arrayReceivedStd, bufferSize);
-            arrayReceivedSynch = (int*)realloc(arrayReceivedSynch, bufferSize);
+            bufferSize = (sizeOfData[sizeOfDataIncrement])*sizeof(char);
+            arrayReceivedStd = (char*)realloc(arrayReceivedStd, bufferSize);
+            arrayReceivedSynch = (char*)realloc(arrayReceivedSynch, bufferSize);
             for(numberOfIterations = 0; numberOfIterations < maxNumberOfIterations; numberOfIterations++)
             {
-                MPI_Recv(arrayReceivedStd, sizeOfData[sizeOfDataIncrement], MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                MPI_Send(arrayReceivedStd, sizeOfData[sizeOfDataIncrement], MPI_INT, 0, 0, MPI_COMM_WORLD);
+                MPI_Recv(arrayReceivedStd, sizeOfData[sizeOfDataIncrement], MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                MPI_Send(arrayReceivedStd, sizeOfData[sizeOfDataIncrement], MPI_CHAR, 0, 0, MPI_COMM_WORLD);
             }
             for(numberOfIterations = 0; numberOfIterations < maxNumberOfIterations; numberOfIterations++)
             {
-                MPI_Recv(arrayReceivedSynch, sizeOfData[sizeOfDataIncrement], MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                MPI_Ssend(arrayReceivedSynch, sizeOfData[sizeOfDataIncrement], MPI_INT, 0, 0, MPI_COMM_WORLD);
+                MPI_Recv(arrayReceivedSynch, sizeOfData[sizeOfDataIncrement], MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                MPI_Ssend(arrayReceivedSynch, sizeOfData[sizeOfDataIncrement], MPI_CHAR, 0, 0, MPI_COMM_WORLD);
             };
         }
         free(arrayReceivedStd);
