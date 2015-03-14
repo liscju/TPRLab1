@@ -60,7 +60,6 @@ void calculatingProcess()
     size_t bufferSize = 0;
     if(arrayToSend!=NULL || arrayFromSecondProcess!=NULL)
     {
-        FILE * resultsFile = fopen("results.txt", "w");
 		FILE * delayAsyncFile = fopen("c_delayAsyn.txt", "w");
 		fprintf(delayAsyncFile, "# X Y\n");
 		FILE * delaySyncFile = fopen("c_delaySync.txt", "w");
@@ -70,7 +69,6 @@ void calculatingProcess()
 		FILE * bandwidthSyncFile = fopen("c_bandwidthSync.txt", "w");
 		fprintf(bandwidthSyncFile, "# X Y\n");
 		
-		// TODO ogarnac jak to jest w pythonie i zrobic analogicznie z zapisem wynikow do plikow
         for(sizeOfDataIncrement = 0; sizeOfDataIncrement<=maxSizeOfDataIteration; sizeOfDataIncrement++)
         {
             totalBandwidth = 0.0;
@@ -90,9 +88,8 @@ void calculatingProcess()
             }
     	    averageTime = totalTime/(double)maxNumberOfIterations;
     	    averageBandwidth = (totalBandwidth*8/(1024*1024))/(double)maxNumberOfIterations;
-            fprintf(resultsFile, "STD Size: %i\n", sizeOfData[sizeOfDataIncrement]);
-            fprintf(resultsFile, "STD Time: %f sec\n", averageTime);
-            fprintf(resultsFile, "STD Avg bw: %f Mbits/sec\n", averageBandwidth);
+            fprintf(delayAsyncFile, "%f %i", averageTime, sizeOfData[sizeOfDataIncrement]);
+            fprintf(bandwidthAsyncFile, "%f %i", averageBandwidth, sizeOfData[sizeOfDataIncrement]);
     	    totalBandwidth = 0;
             bandwidth = 0;
             averageBandwidth = 0;
@@ -114,11 +111,9 @@ void calculatingProcess()
             timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
 	        averageBandwidth = 0;
             averageBandwidth = (totalBandwidth*8/(1024*1024))/(double)maxNumberOfIterations;
-            fprintf(resultsFile, "SYN Size: %i\n", sizeOfData[sizeOfDataIncrement]);
-            fprintf(resultsFile, "SYN Time: %f sec\n", averageTime);
-            fprintf(resultsFile, "SYN Avg bw: %f Mbits/sec\n", averageBandwidth);
+            fprintf(delaySyncFile, "%f %i", averageTime, sizeOfData[sizeOfDataIncrement]);
+            fprintf(bandwidthSyncFile, "%f %i", averageBandwidth, sizeOfData[sizeOfDataIncrement]);
         }
-        fclose(resultsFile);
 		fclose(delayAsyncFile);
 		fclose(delaySyncFile);
 		fclose(bandwidthAsyncFile);
