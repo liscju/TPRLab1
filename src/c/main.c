@@ -88,10 +88,8 @@ void calculatingProcess()
             }
     	    averageTime = totalTime/(double)maxNumberOfIterations;
     	    averageBandwidth = (totalBandwidth*8/(1024*1024))/(double)maxNumberOfIterations;
-            fprintf(delayAsyncFile, "%i %f", sizeOfData[sizeOfDataIncrement], averageTime );
-            fprintf("\n");
-            fprintf(bandwidthAsyncFile, "%i %f", sizeOfData[sizeOfDataIncrement], averageBandwidth);
-            fprintf("\n");
+            fprintf(delayAsyncFile, "%i %f\n", sizeOfData[sizeOfDataIncrement], averageTime );
+            fprintf(bandwidthAsyncFile, "%i %f\n", sizeOfData[sizeOfDataIncrement], averageBandwidth);
     	    totalBandwidth = 0;
             bandwidth = 0;
             averageBandwidth = 0;
@@ -113,10 +111,8 @@ void calculatingProcess()
             timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
 	        averageBandwidth = 0;
             averageBandwidth = (totalBandwidth*8/(1024*1024))/(double)maxNumberOfIterations;
-            fprintf(delaySyncFile, "%i %f", sizeOfData[sizeOfDataIncrement], averageTime);
-            fprintf("\n");
-            fprintf(bandwidthSyncFile, "%i %f", sizeOfData[sizeOfDataIncrement], averageBandwidth);
-            fprintf("\n");
+            fprintf(delaySyncFile, "%i %f\n", sizeOfData[sizeOfDataIncrement], averageTime);
+            fprintf(bandwidthSyncFile, "%i %f\n", sizeOfData[sizeOfDataIncrement], averageBandwidth);
         }
 		fclose(delayAsyncFile);
 		fclose(delaySyncFile);
