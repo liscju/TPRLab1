@@ -1,4 +1,3 @@
-///clean this shit right here
 #include <inttypes.h>
 #include <mpi.h>
 #include <stdio.h>
@@ -60,15 +59,15 @@ void calculatingProcess()
     size_t bufferSize = 0;
     if(arrayToSend!=NULL || arrayFromSecondProcess!=NULL)
     {
-		FILE * delayAsyncFile = fopen("c_delayAsyn.txt", "w");
-		fprintf(delayAsyncFile, "# X Y\n");
-		FILE * delaySyncFile = fopen("c_delaySync.txt", "w");
-		fprintf(delaySyncFile, "# X Y\n");
-		FILE * bandwidthAsyncFile = fopen("c_bandwidthAsyn.txt", "w");
-		fprintf(bandwidthAsyncFile, "# X Y\n");
-		FILE * bandwidthSyncFile = fopen("c_bandwidthSync.txt", "w");
-		fprintf(bandwidthSyncFile, "# X Y\n");
-		
+        FILE * delayAsyncFile = fopen("c_delayAsyn.txt", "w");
+        fprintf(delayAsyncFile, "# X Y\n");
+        FILE * delaySyncFile = fopen("c_delaySync.txt", "w");
+        fprintf(delaySyncFile, "# X Y\n");
+        FILE * bandwidthAsyncFile = fopen("c_bandwidthAsyn.txt", "w");
+        fprintf(bandwidthAsyncFile, "# X Y\n");
+        FILE * bandwidthSyncFile = fopen("c_bandwidthSync.txt", "w");
+        fprintf(bandwidthSyncFile, "# X Y\n");
+
         for(sizeOfDataIncrement = 0; sizeOfDataIncrement<=maxSizeOfDataIteration; sizeOfDataIncrement++)
         {
             totalBandwidth = 0.0;
@@ -80,20 +79,20 @@ void calculatingProcess()
                 clock_gettime(CLOCK_MONOTONIC, &beginTime);
                 MPI_Send(arrayToSend, sizeOfData[sizeOfDataIncrement], MPI_CHAR, 1, 0, MPI_COMM_WORLD);
                 MPI_Recv(arrayFromSecondProcess, sizeOfData[sizeOfDataIncrement], MPI_CHAR, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        		clock_gettime(CLOCK_MONOTONIC, &endTime);
-        		timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
+                clock_gettime(CLOCK_MONOTONIC, &endTime);
+                timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
                 bandwidth = ((double)sizeOfData[sizeOfDataIncrement] * 2) / timeDifference;
-        		totalBandwidth = totalBandwidth + bandwidth;
-        		totalTime = totalTime + timeDifference;
+                totalBandwidth = totalBandwidth + bandwidth;
+                totalTime = totalTime + timeDifference;
             }
-    	    averageTime = totalTime/(double)maxNumberOfIterations;
-    	    averageBandwidth = (totalBandwidth*8/(1024*1024))/(double)maxNumberOfIterations;
-            fprintf(delayAsyncFile, "%i %f\n", sizeOfData[sizeOfDataIncrement], averageTime );
+            averageTime = totalTime/(double)maxNumberOfIterations;
+            averageBandwidth = (totalBandwidth*8/(1024*1024))/(double)maxNumberOfIterations;
+            fprintf(delayAsyncFile, "%i %f\n", sizeOfData[sizeOfDataIncrement], averageTime);
             fprintf(bandwidthAsyncFile, "%i %f\n", sizeOfData[sizeOfDataIncrement], averageBandwidth);
-    	    totalBandwidth = 0;
+            totalBandwidth = 0;
             bandwidth = 0;
             averageBandwidth = 0;
-	        averageTime = 0;
+            averageTime = 0;
             totalTime = 0;
             for(numberOfIterations = 0; numberOfIterations < maxNumberOfIterations; numberOfIterations++)
             {
@@ -101,23 +100,23 @@ void calculatingProcess()
                 MPI_Ssend(arrayToSend, sizeOfData[sizeOfDataIncrement], MPI_CHAR, 1, 0, MPI_COMM_WORLD);
                 MPI_Recv(arrayFromSecondProcess, sizeOfData[sizeOfDataIncrement], MPI_CHAR, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 clock_gettime(CLOCK_MONOTONIC, &endTime);
-		        timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
+                timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
                 bandwidth = ((double)sizeOfData[sizeOfDataIncrement] * 2) / timeDifference;
-        		totalBandwidth = totalBandwidth + bandwidth;
-        		totalTime = totalTime + timeDifference;
+                totalBandwidth = totalBandwidth + bandwidth;
+                totalTime = totalTime + timeDifference;
             }
-	        averageTime = totalTime/(double)maxNumberOfIterations;
+            averageTime = totalTime/(double)maxNumberOfIterations;
             clock_gettime(CLOCK_MONOTONIC, &endTime);
             timeDifference = calculateTimeDifference(&endTime, &beginTime)/2;
-	        averageBandwidth = 0;
+            averageBandwidth = 0;
             averageBandwidth = (totalBandwidth*8/(1024*1024))/(double)maxNumberOfIterations;
             fprintf(delaySyncFile, "%i %f\n", sizeOfData[sizeOfDataIncrement], averageTime);
             fprintf(bandwidthSyncFile, "%i %f\n", sizeOfData[sizeOfDataIncrement], averageBandwidth);
         }
-		fclose(delayAsyncFile);
-		fclose(delaySyncFile);
-		fclose(bandwidthAsyncFile);
-		fclose(bandwidthSyncFile);
+        fclose(delayAsyncFile);
+        fclose(delaySyncFile);
+        fclose(bandwidthAsyncFile);
+        fclose(bandwidthSyncFile);
         free(arrayToSend);
         free(arrayFromSecondProcess);
     }
