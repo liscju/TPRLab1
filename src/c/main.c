@@ -20,9 +20,9 @@ void initMPI(int * world_size, int * world_rank)
     MPI_Barrier(MPI_COMM_WORLD);
 }
 
-double calculateTimeDifference(struct timespec * tend, struct timespec *tstart)
+double calculateTimeDifference(struct timespec * endTime, struct timespec * beginTime)
 {
-    return ((double)tend->tv_sec + 1.0e-9*tend->tv_nsec) - ((double)tstart->tv_sec + 1.0e-9*tstart->tv_nsec);
+    return ((double)endTime->tv_sec + 1.0e-9*endTime->tv_nsec) - ((double)beginTime->tv_sec + 1.0e-9*beginTime->tv_nsec);
 }
 
 void checkAndLaunchProcesses(int * world_size, int * world_rank, char * argv[])
@@ -129,6 +129,7 @@ void normalProcess()
     char * arrayReceivedStd = (char*)malloc(1*sizeof(char));
     char * arrayReceivedSynch = (char*)malloc(1*sizeof(char));
     size_t bufferSize = 0;
+
     if(arrayReceivedStd!=NULL || arrayReceivedSynch!=NULL)
     {
         for(sizeOfDataIncrement = 0; sizeOfDataIncrement<=maxSizeOfDataIteration; sizeOfDataIncrement++)
@@ -150,7 +151,6 @@ void normalProcess()
         free(arrayReceivedStd);
         free(arrayReceivedSynch);
     }
-}
 
 int main(int argc, char* argv[])
 {
